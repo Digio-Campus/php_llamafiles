@@ -1,4 +1,4 @@
-# scripts_php_llamafiles
+# php_llamafiles
 
 Pequeño proyecto desarrollado bajo PHP en el cual se hace uso de una API de RapidAPI para obtener información sobre productos y reseñas de Amazon.
 
