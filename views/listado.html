@@ -1,0 +1,60 @@
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Inicio</title>
+  
+    </head>
+
+    <body>
+        <h1>Buscar producto</h1>
+        <form method="POST" action="controller.php">
+            <input type="hidden" name="opcion" value="cargar">
+            <label for="asin">Insertar ASIN: </label>
+            <input type="text" name="asin">
+
+
+            <input type="submit" name="cargar" id="cargar" value="Cargar">
+            <input type="submit" name="submit" id="forzar" value="Forzar Carga" disabled>
+
+
+        </form>
+
+        <hr>
+
+        <h1>Productos guardados</h1>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <?php foreach (getProducts() as $key => $value) { ?>
+                    <tr>
+                        <td><?php echo $value['id'] ?></td>
+                        <td><?php echo $value['title'] ?></td>
+
+                        <td>
+                            <form method="POST" action="controller.php">
+                                <input type="hidden" name="opcion" value="inspeccionar">
+                                <input type="hidden" name="id" value="<?php echo $value['id'] ?>">
+                                <input type="submit" name="<?php echo $value['id'] ?>" id="<?php echo $value['id'] ?>" value="Inspeccionar">
+                            </form>
+                        </td>
+                    </tr>
+
+                <?php } ?>
+
+            </tbody>
+        </table>
+    </body>
+
+    <hr>
+
+    </html>

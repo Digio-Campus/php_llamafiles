@@ -1,0 +1,13 @@
+name: php_llamafiles
+recipe: lamp
+config:
+  webroot: .
+services:
+  appserver:
+    type: php:8.2
+  database:
+    type: mysql:5.7
+    creds:
+      database: php_llamafiles_db
+      user: lamp
+      password: lamp
