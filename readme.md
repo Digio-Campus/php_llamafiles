@@ -13,8 +13,8 @@ Tanto los productos como las reseñas son almacenados en la BD para su posterior
 ## Instalación
 
 > **Requires [PHP 8.1+](https://php.net/releases/)**
-> [Docker](https://docs.docker.com/get-docker/)**
-> [Lando](https://docs.lando.dev/install)**
+> [Docker](https://docs.docker.com/get-docker/)
+> [Lando](https://docs.lando.dev/install)
 
 Creamos el entorno de desarrollo con Lando ejecutando el siguiente comando en la carpeta del proyecto:
 ```bash
