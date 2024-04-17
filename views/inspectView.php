@@ -13,8 +13,10 @@
             <input type="hidden" name="opcion" value="analizar">
             <input type="hidden" name="product_id" value="<?php echo $product_id ?>">
             <label for="reviews_count">Cantidad de reviews a analizar: </label>
-            <input type="text" name="reviews_count">
+            <input type="number" id="reviews_count" name="reviews_count" min="1" max="50">
+
             <input type="submit" name="ejecutar" id="ejecutar" value="Ejecutar">
+            <input type="submit" name="anteriores" id="anteriores" value="anteriores">
         </form>
 
 
@@ -25,6 +27,7 @@
     </div>
     <!--<p>Reviews analizadas (nº): </p>
         <button>Ver analisis</button> -->
+        <button><a href="index.php?controlador=Reviews&accion=showAnalisis">Ver analisis anteriores</a></button> 
         <a href="/"><button>Volver a Inicio</button></a>
         <br>
         <hr>

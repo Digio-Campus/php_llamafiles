@@ -104,11 +104,13 @@ class Model {
     {
         // $review_count = fetchProductReviews($product['data']['asin']);
         // $test = 2;
-        $query = $this->db->prepare('INSERT INTO `products` (`title`, `description`, `review_count`, `asin`) VALUES (?, ?, ?, ?)');
+        $query = $this->db->prepare('INSERT INTO `products` (`title`, `description`, `product_price`, `product_photo`, `review_count`, `asin`) VALUES (?, ?, ?, ?, ?, ? )');
         $query->bindParam(1, $product['data']['product_title']);
         $query->bindParam(2, $product['data']['product_description']);
-        $query->bindParam(3, $total_reviews);
-        $query->bindParam(4, $product['data']['asin']);
+        $query->bindParam(3, $product['data']['product_price']);    
+        $query->bindParam(4, $product['data']['product_photo']);
+        $query->bindParam(5, $total_reviews);
+        $query->bindParam(6, $product['data']['asin']);
         // $query->bindParam(4, $review_count['data']['total_reviews']);
         $query->execute();
     }
@@ -139,4 +141,26 @@ class Model {
         $query->bindParam(3, $analisis['analisis']);
         $query->execute();
     }
+
+    function deleteProduct($product_id)
+    {
+        $query = $this->db->prepare('DELETE FROM products WHERE id = ?;');
+        $query->bindParam(1, $product_id['id']);
+        $query->execute();
+    }
+    function deleteReviews($product_id)
+    {
+        $query = $this->db->prepare('DELETE FROM reviews WHERE product_id = ?;');
+        $query->bindParam(1, $product_id['id']);
+        $query->execute();
+    }
+    function deleteAnalisis($product_id)
+    {
+        $query = $this->db->prepare('DELETE FROM analisis WHERE product_id = ?;');
+        $query->bindParam(1, $product_id['id']);
+        $query->execute();
+    }
+
+
+    
 }

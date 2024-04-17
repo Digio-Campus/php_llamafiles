@@ -16,22 +16,20 @@ class ReviewsController
         $this->view = new View();
     }
 
-    public function getInicio()
+    public function getInicio() 
     {
-        // if (isset($_REQUEST['id']) && $_REQUEST['id'] !== null)
-        //     $_SESSION['product'] = $_POST['id'];
-
-
         $this->view->show("indexView.php", array("products" => $this->products));
     }
 
     public function insertProduct()
     {
+        $data = [];
         $db_products = $this->db->getProducts();
         $isAlreadyInDB = false;
 
         if (isset($_REQUEST['submit']) && $_REQUEST['submit'] == "Cargar") {
 
+            //Comprobamos si hay productos en la DB
             if ($db_products !== null) {
 
                 // Analizamos cada producto en la DB en busca de alguna coincidencia..
@@ -40,19 +38,69 @@ class ReviewsController
                         $isAlreadyInDB = true;
 
                         // Si ya existe el producto en la DB, no hacemos nada.
+                        $data += [
+                            'products' => $db_products,
+                            'isAlreadyInDB' => $isAlreadyInDB,
+                            'asin' => $_POST['asin']
+                        ];
+                        $this->view->show("indexView.php", $data);
                         break;
                     }
                 }
             }
 
-            if ($isAlreadyInDB != true) {
+            // Si no existe el producto en la DB, lo introducimos.
+            if (!$isAlreadyInDB) {
+                // Realizamos las solicitudes GET a la API.
                 $product = fetchProduct($_POST['asin']);
                 $reviews = fetchProductReviews($_POST['asin']);
-
 
                 // Comprobamos que las solicitudes a la API nos han devuelto datos..
                 if ($product !== null) {
                     if ($reviews !== null) {
+
+                        $total_reviews = $reviews['data']['total_reviews'];
+                        $product_id = $this->db->getProductIdByASIN($_POST['asin']);
+
+                        // Insertamos el producto en la base de datos..
+                        $this->db->setProduct($product, $total_reviews);
+
+                        // Insertamos las reviews del producto en la base de datos..
+                        foreach ($reviews['data'] as $key => $value) {
+                            if ($key == 'reviews') {
+                                if (is_array($value) && count($value) > 0) {
+                                    foreach ($value as $review) {
+                                        $this->db->setReview($review, $product_id['id']);
+                                    }
+                                }
+                            }
+                        }
+
+                        $data = [
+                            'products' => $db_products,
+                            'product' => $this->db->getProduct($product_id),
+                            'isAlreadyInDB' => $isAlreadyInDB,
+                        ];
+
+                        echo '<p style="color: green;">Producto insertado correctamente.</p>';
+                        $this->view->show("indexView.php", $data);
+                    }
+                }
+            }
+        }
+        if (isset($_REQUEST['submit']) && $_REQUEST['submit'] == "Forzar Carga") {
+
+            $product_id = $this->db->getProductIdByASIN($_POST['asin']);
+
+            $this->db->deleteAnalisis($product_id);
+            $this->db->deleteReviews($product_id);
+            $this->db->deleteProduct($product_id);
+
+            $product = fetchProduct($_POST['asin']);
+            $reviews = fetchProductReviews($_POST['asin']);
+
+            if ($product !== null) {
+                if ($reviews !== null) {
 
                     $total_reviews = $reviews['data']['total_reviews'];
                     $this->db->setProduct($product, $total_reviews);
@@ -62,33 +110,32 @@ class ReviewsController
                     $data = [
                         'products' => $db_products,
                         'product' => $this->db->getProduct($product_id),
+                        'isAlreadyInDB' => $isAlreadyInDB,
                     ];
 
-                    // echo 'ID DEL PRODUCTO INTRODUCIDO ' . $product_id;
-                    // var_dump($product_id);
-
-                    // var_dump($reviews);
-
-                        foreach ($reviews['data'] as $key => $value) {
-
-                            if ($key != 'reviews') {
-                                echo 'KEY: ' . $key . ' VALUE: ' . $value . '<br>';
-                            }
-
-                            if ($key == 'reviews') {
-                                if (is_array($value) && count($value) > 0) {
-                                    foreach ($value as $review) {
-                                        $this->db->setReview($review, $product_id['id']);
-                                    }
+                    foreach ($reviews['data'] as $key => $value) {
+                        if ($key == 'reviews') {
+                            if (is_array($value) && count($value) > 0) {
+                                foreach ($value as $review) {
+                                    $this->db->setReview($review, $product_id['id']);
                                 }
                             }
                         }
-                        header("Location: index.php");
                     }
+                    echo '<p style="color: green;">Producto insertado correctamente.</p>';
+                    $this->view->show("indexView.php", $data);
                 }
             }
         }
-        $this->view->show("indexView.php", $data);
+
+        if (!isset($_REQUEST['submit'])) {
+            $data = [
+                'products' => $db_products,
+                'isAlreadyInDB' => $isAlreadyInDB,
+            ];
+            $this->view->show("indexView.php", $data);
+        }
+
     }
 
     public function inspectProduct()
@@ -152,14 +199,52 @@ class ReviewsController
                     }
 
                     echo 'ANALISIS REALIZADO';
-                    var_dump($results);                    
+                    var_dump($results);
                 }
 
                 // $results[] = ['analisis' => 'No se han realizado analisis anteriormente.'];
                 $this->view->show('analisisView.php', $results);
             }
-        } else {
+            else {
+            }
+            if (isset($_REQUEST["submit"]) && $_REQUEST["submit"] == "anteriores") { 
+                $this->view->show('analisisView.php', $results);
+             }
+             else
+                echo ' PRUEBA ELSE ';
+        } 
+        else {
             echo 'NO HAY REVIEWS';
         }
+    }
+    public function showAnalisis()
+    {
+        // $results = [];
+
+        $product = $this->db->getProduct($_SESSION['product_id']);
+        $reviews = $this->db->getReviews($_SESSION['product_id']);
+        $analisis = $this->db->getAnalisis($_SESSION['product_id']);
+        $analized_reviews = 0;
+
+        foreach ($analisis as $value) {
+            foreach ($reviews as $review) {
+                if ($value['review_id'] == $review['id'])
+                    $analized_reviews++;
+            }
+        }
+
+        if($reviews && $analisis) {
+            $data = [
+                'product' => $product,
+                'reviews' => $reviews,
+                'analisis' => $analisis,
+                'analized_reviews' => $analized_reviews
+            ];
+
+            $this->view->show('analisisView.php', $data);
+        }
+        else
+            echo 'no hay analisis';
+
     }
 }

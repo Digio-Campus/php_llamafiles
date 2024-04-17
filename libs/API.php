@@ -7,7 +7,7 @@ function fetchProduct($asin)
 {
     $amazonClient = new Client(
         [
-            'rapidapi_key' => '4d74d39b80mshccfb9299397f0fap1a92b8jsnacd9be75fad7'
+            'rapidapi_key' => 'b00fbee5b3msh65cb9f2e73da16ap1d2172jsn40a9d9536c64'
         ]
     );
 
@@ -28,9 +28,18 @@ function fetchProductReviews($asin)
 {
     $amazonClient = new Client(
         [
-            'rapidapi_key' => '4d74d39b80mshccfb9299397f0fap1a92b8jsnacd9be75fad7'
+            'rapidapi_key' => 'b00fbee5b3msh65cb9f2e73da16ap1d2172jsn40a9d9536c64'
         ]
     );
+
+    // for ($i = 1; $i < 5; $i++) {
+    //     $response = $amazonClient->getProductReviews([
+    //         'asin' => $asin,
+    //         'country' => 'ES',
+    //         'page' => $i, // pagination starts from page#1
+    //         // 'sort_by' => 'recent', // 'recent' or 'helpful'
+    //     ]);
+    // }
 
     $response = $amazonClient->getProductReviews([
         'asin' => $asin,
